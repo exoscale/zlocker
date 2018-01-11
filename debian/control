@@ -1,0 +1,11 @@
+Source: zlocker
+Priority: optional
+Section: net
+Maintainer: pyr@exoscale.ch
+Build-Depends: debhelper (>= 9),
+               lsb-release
+
+Package: zlocker
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Zookeeper based isolated command execution
