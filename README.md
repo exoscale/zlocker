@@ -39,3 +39,6 @@ It uses [godep](https://github.com/golang/dep), so it should be easy.
     dep status
     dep ensure -update
 
+### Example usage
+
+   zlocker -z zk01,zk02,zk03 -l /zlock-service-restart service my-daemon restart
