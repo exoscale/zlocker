@@ -41,4 +41,4 @@ It uses [godep](https://github.com/golang/dep), so it should be easy.
 
 ### Example usage
 
-   zlocker -z zk01,zk02,zk03 -l /zlock-service-restart service my-daemon restart
+    zlocker -z zk01,zk02,zk03 -l /zlock-service-restart service my-daemon restart
