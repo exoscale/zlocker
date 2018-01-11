@@ -11,7 +11,6 @@ override_dh_gencontrol:
 	dh_gencontrol -- -$(DEBVERSION)
 
 override_dh_auto_build:
-	make
-
+	# nothing
 override_dh_auto_test:
 	# Run tests during integration tests

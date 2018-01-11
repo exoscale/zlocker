@@ -1,4 +1,4 @@
-VERSION = 	0.3.4-snapshot
+VERSION = 	v0.1.6-snapshot
 PKG = 		zlocker
 MAIN = 		$(PKG).go
 RM =		rm -f
@@ -20,3 +20,7 @@ $(PKG): deps
 .PHONY: clean
 clean:
 	$(RM) $(PKG)
+
+.PHONY: version
+version:
+	@echo $(VERSION)
