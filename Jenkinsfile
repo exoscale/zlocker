@@ -38,7 +38,7 @@ def Build() {
   def golang = docker.image('golang:latest')
   golang.pull()
   stage('build') {
-    golang.inside() {
+    golang.inside('--net=host') {
       sh 'mkdir -p /go/src/zlocker'
       sh 'cp Gopkg.lock  Gopkg.toml  Jenkinsfile  Makefile  README.md zlocker.go /go/src/zlocker'
       sh 'cd /go/src/zlocker && make'
