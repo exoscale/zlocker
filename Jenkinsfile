@@ -13,14 +13,15 @@ node {
       Build()
 
       stage('build deb package') {
-        gitPbuilder('xenial')
+        gitPbuilder('bionic')
       }
 
-      stage('upload packages') {
-                sh 'cp ../build-area/*.deb .'
-		aptlyUpload('staging')
-      }
     }
+
+    stage('upload packages') {
+	  aptlyUpload('staging', 'bionic', 'main', 'build-area/*deb')
+    }
+
   }
   catch (err) {
     currentBuild.result = 'FAILURE'
