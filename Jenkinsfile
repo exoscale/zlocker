@@ -9,9 +9,16 @@ node {
       stage('checkout source code') {
         checkout scm
       }
-
-      Build()
-
+      stage('Build') {
+        parallel (
+          "go lint": {
+            lint()
+          },
+          "go build": {
+            build()
+          }
+        )
+      }
       stage('build deb package') {
         gitPbuilder('bionic')
       }
@@ -19,7 +26,7 @@ node {
     }
 
     stage('upload packages') {
-	  aptlyUpload('staging', 'bionic', 'main', 'build-area/*deb')
+      aptlyUpload('staging', 'bionic', 'main', 'build-area/*deb')
     }
 
   }
@@ -34,16 +41,24 @@ node {
   }
 }
 
-def Build() {
-  def golang = docker.image('golang:latest')
-  golang.pull()
-  stage('build') {
-    golang.inside('--net=host') {
-      sh 'mkdir -p /go/src/zlocker'
-      sh 'cp Gopkg.lock  Gopkg.toml  Jenkinsfile  Makefile  README.md zlocker.go /go/src/zlocker'
-      sh 'cd /go/src/zlocker && make'
-      sh 'cp /go/src/zlocker/zlocker .'
-      sh 'make version > .version'
+def lint() {
+  docker.withRegistry('https://registry.internal.exoscale.ch') {
+    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
+    image.pull()
+    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/exoscale/zlocker") {
+      sh 'test `gofmt -s -d -e . | tee -a /dev/fd/2 | wc -l` -eq 0'
+      sh 'golint -set_exit_status'
+      sh 'go tool vet .'
+    }
+  }
+}
+
+def build() {
+  docker.withRegistry('https://registry.internal.exoscale.ch') {
+    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
+    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/exoscale/zlocker") {
+      sh 'cd /go/src/github.com/exoscale/zlocker && dep ensure'
+      sh 'cd /go/src/github.com/exoscale/zlocker && go build'
     }
   }
 }
