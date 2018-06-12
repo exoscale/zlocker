@@ -74,7 +74,7 @@ def build() {
     def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
     image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/exoscale/zlocker") {
       sh 'cd /go/src/github.com/exoscale/zlocker && dep ensure'
-      sh 'cd /go/src/github.com/exoscale/zlocker && go build'
+      sh 'cd /go/src/github.com/exoscale/zlocker && CGO_ENABLED=0 go build -ldflags "-s"'
     }
   }
 }
