@@ -9,6 +9,7 @@ node {
       stage('checkout source code') {
         checkout scm
       }
+      updateGithubCommitStatus('PENDING', "${env.WORKSPACE}/src")
       stage('dep') {
         godep()
       }
@@ -40,7 +41,9 @@ node {
 
   finally {
     if (currentBuild.result != 'FAILURE') {
+      currentBuild.result = 'SUCCESS'
     }
+    updateGithubCommitStatus(currentBuild.result, "${env.WORKSPACE}/src")
   }
 }
 
