@@ -2,7 +2,7 @@
 
 DISTRIBUTION := $(shell lsb_release -sc)
 VERSION := $(shell make --no-print-directory version)
-DEBVERSION = $(VERSION)-0~$(DISTRIBUTION)0
+DEBVERSION = $(VERSION)-$(shell date +%Y%m%d-%H%M%S)-0~$(DISTRIBUTION)0
 
 %:
 	dh $@
