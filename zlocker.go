@@ -53,13 +53,11 @@ func main() {
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	if err = cmd.Run(); err != nil {
-		lock.Unlock()
 		os.Exit(1)
 	}
 	if (*waitPeriod > 0) {
 		fmt.Println("command finished, sleeping")
 		time.Sleep(time.Second * time.Duration(*waitPeriod))
 	}
-	lock.Unlock()
 	os.Exit(0)
 }
