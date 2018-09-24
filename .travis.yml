@@ -3,10 +3,10 @@ language: go
 dist: trusty
 
 go:
-- 1.9
-- 1.10
-- 1.11
-- tip
+- "1.9"
+- "1.10"
+- "1.11"
+- "tip"
 
 env:
   - GIMME_OS=linux GIMME_ARCH=amd64
