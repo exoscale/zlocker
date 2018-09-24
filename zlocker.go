@@ -6,20 +6,36 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/samuel/go-zookeeper/zk"
 )
 
-var sessionTimeout = flag.Int("t", 60, "Session timeout")
-var waitPeriod = flag.Int("w", 1, "Wait period before releasing lock")
-var zookeeperCluster = flag.String("z", "", "Address of zookeeper cluster")
-var lockName = flag.String("l", "", "Name of zookeeper lock to request")
+var (
+	sessionTimeout   = flag.Int("t", 60, "Session timeout")
+	waitPeriod       = flag.Int("w", 1, "Wait period before releasing lock")
+	zookeeperCluster = flag.String("z", "", "Address of zookeeper cluster")
+	lockName         = flag.String("l", "", "Name of zookeeper lock to request")
+	flagVersion      = flag.Bool("v", false, "Display version and exit")
+
+	version string
+)
 
 func main() {
-
 	flag.Parse()
+
+	if *flagVersion {
+		fmt.Printf("%s %s\nGo version: %s (%s)\n",
+			path.Base(os.Args[0]),
+			version,
+			runtime.Version(),
+			runtime.Compiler,
+		)
+		os.Exit(0)
+	}
 
 	logger := log.New(os.Stderr, "zlocker: ", 0)
 	if len(*zookeeperCluster) == 0 || len(*lockName) == 0 {
