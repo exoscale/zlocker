@@ -15,7 +15,7 @@ deps: $(DEP)
 	@env PATH="$(GOPATH)/bin:$(PATH)" $(DEP) ensure
 
 $(PKG): deps
-	@go build
+	@go build -ldflags "-X main.version=$(VERSION)"
 
 .PHONY: clean
 clean:
