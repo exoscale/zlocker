@@ -1,15 +1,15 @@
 package main
 
 import (
-	"os/exec"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
-	"github.com/samuel/go-zookeeper/zk"
 
+	"github.com/samuel/go-zookeeper/zk"
 )
 
 var sessionTimeout = flag.Int("t", 60, "Session timeout")
@@ -34,7 +34,7 @@ func main() {
 
 	cluster, _, err := zk.Connect(
 		servers,
-		time.Second * time.Duration(*sessionTimeout),
+		time.Second*time.Duration(*sessionTimeout),
 		zk.WithLogger(logger))
 	if err != nil {
 		logger.Fatal("cannot connect to cluster")
@@ -43,7 +43,7 @@ func main() {
 
 	acl := zk.WorldACL(zk.PermAll)
 	lock := zk.NewLock(cluster, *lockName, acl)
-	if err = lock.Lock() ; err != nil {
+	if err = lock.Lock(); err != nil {
 		logger.Fatal("cannot lock, exiting")
 		os.Exit(1)
 	}
@@ -55,7 +55,7 @@ func main() {
 	if err = cmd.Run(); err != nil {
 		os.Exit(1)
 	}
-	if (*waitPeriod > 0) {
+	if *waitPeriod > 0 {
 		fmt.Println("command finished, sleeping")
 		time.Sleep(time.Second * time.Duration(*waitPeriod))
 	}
