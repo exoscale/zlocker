@@ -2,24 +2,24 @@ VERSION = 	v0.1.6-snapshot
 PKG = 		zlocker
 MAIN = 		$(PKG).go
 RM =		rm -f
-DEP =		$(GOPATH)/bin/dep
+DEP =		dep
 
 .PHONY: all
 all: $(PKG)
 
 $(DEP):
-	go get -u github.com/golang/dep/cmd/dep
+	@env -u GOOS -u GOARCH go get -u github.com/golang/dep/cmd/dep
 
 .PHONY: deps
 deps: $(DEP)
-	$(DEP) ensure
+	@env PATH="$(GOPATH)/bin:$(PATH)" $(DEP) ensure
 
 $(PKG): deps
-	go build
+	@go build
 
 .PHONY: clean
 clean:
-	$(RM) $(PKG)
+	@$(RM) $(PKG)
 
 .PHONY: version
 version:
