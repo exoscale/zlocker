@@ -1,5 +1,7 @@
 @Library('jenkins-pipeline') _
 
+repo = "exoscale/zlocker"
+
 node {
   // Wipe the workspace so we are building completely clean
   cleanWs()
@@ -10,29 +12,37 @@ node {
         checkout scm
       }
       updateGithubCommitStatus('PENDING', "${env.WORKSPACE}/src")
+
       stage('dep') {
         godep()
       }
+
       stage('Build') {
         parallel (
           "go lint": {
             golint()
           },
-          "go build": {
-            build()
+          "docker build": {
+            image = docker(repo)
+          },
+          "deb package": {
+            build(repo)
+            gitPbuilder('bionic')
           }
         )
       }
-      stage('build deb package') {
-        gitPbuilder('bionic')
+
+      stage('Upload') {
+        parallel (
+          "docker image": {
+            image.push()
+          },
+          "deb package": {
+            aptlyUpload('staging', 'bionic', 'main', '../build-area/*deb')
+          }
+        )
       }
-
     }
-
-    stage('upload packages') {
-      aptlyUpload('staging', 'bionic', 'main', 'build-area/*deb')
-    }
-
   }
   catch (err) {
     currentBuild.result = 'FAILURE'
@@ -69,12 +79,26 @@ def golint() {
   }
 }
 
-def build() {
+def build(repo) {
   docker.withRegistry('https://registry.internal.exoscale.ch') {
     def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
-    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/exoscale/zlocker") {
-      sh 'cd /go/src/github.com/exoscale/zlocker && dep ensure'
-      sh 'cd /go/src/github.com/exoscale/zlocker && CGO_ENABLED=0 go build -ldflags "-s"'
+    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/${repo}") {
+      sh "cd /go/src/github.com/${repo} && make"
     }
+  }
+}
+
+def docker(repo) {
+  def branch = getGitBranch()
+  def tag = getGitTag() ?: (branch == "master" ? "latest" : branch)
+  def ref = sh("git rev-parse HEAD")
+  def date = sh('date -u +"%Y-%m-%dT%H:%m:%SZ"')
+  docker.withRegistry('https://registry.internal.exoscale.ch') {
+    return docker.build(
+        "registry.internal.exoscale.ch/${repo}:${tag}",
+        "--network host --no-cache -f Dockerfile "
+        + "--build-arg VCS_REF=$ref --build-arg BUILD_DATE=$date "
+        + "."
+    )
   }
 }
