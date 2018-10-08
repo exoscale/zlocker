@@ -12,11 +12,6 @@ node {
         checkout scm
       }
       updateGithubCommitStatus('PENDING', "${env.WORKSPACE}/src")
-
-      stage('dep') {
-        godep()
-      }
-
       stage('Build') {
         parallel (
           "go lint": {
@@ -57,17 +52,6 @@ node {
   }
 }
 
-def godep() {
-  docker.withRegistry('https://registry.internal.exoscale.ch') {
-    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
-    image.pull()
-    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/exoscale/zlocker") {
-      sh 'test `gofmt -s -d -e . | tee -a /dev/fd/2 | wc -l` -eq 0'
-      sh 'cd /go/src/github.com/exoscale/zlocker && dep ensure -v -vendor-only'
-    }
-  }
-}
-
 def golint() {
   docker.withRegistry('https://registry.internal.exoscale.ch') {
     def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
@@ -82,8 +66,8 @@ def golint() {
 def build(repo) {
   docker.withRegistry('https://registry.internal.exoscale.ch') {
     def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
-    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/${repo}") {
-      sh "cd /go/src/github.com/${repo} && make"
+    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/exoscale/zlocker") {
+      sh 'cd /go/src/github.com/exoscale/zlocker && CGO_ENABLED=0 go build -ldflags "-s -X main.version=`cat VERSION`"'
     }
   }
 }

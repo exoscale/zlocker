@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 DISTRIBUTION := $(shell lsb_release -sc)
-VERSION := $(shell make --no-print-directory version)
+VERSION := $(shell cat VERSION)
 DEBVERSION = $(VERSION)-$(shell date +%Y%m%d-%H%M%S)-0~$(DISTRIBUTION)0
 
 %:
