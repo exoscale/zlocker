@@ -1,4 +1,4 @@
-FROM registry.internal.exoscale.ch/exoscale/golang:1.10 as build
+FROM registry.internal.exoscale.ch/exoscale/golang:1.11 as build
 
 RUN mkdir -p /go/src/github.com/exoscale/zlocker
 ADD . /go/src/github.com/exoscale/zlocker
