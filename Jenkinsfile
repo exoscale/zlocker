@@ -46,17 +46,13 @@ def golint() {
   docker.withRegistry('https://registry.internal.exoscale.ch') {
     def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.11')
     image.pull()
-    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:.") {
-      sh 'make lint'
-    }
+    image.inside("-u root --net=host") { sh 'make lint' }
   }
 }
 
 def build(repo) {
   docker.withRegistry('https://registry.internal.exoscale.ch') {
     def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.11')
-    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:.") {
-      sh 'make'
-    }
+    image.inside("-u root --net=host") { sh 'make' }
   }
 }
