@@ -13,12 +13,5 @@ env:
 
 cache: apt
 
-before_install:
-  - go get -u github.com/golang/dep/cmd/dep
-
-install:
-  - dep ensure
-
 script:
   - make
-  - go test -race -coverprofile=coverage.out -covermode=atomic .
