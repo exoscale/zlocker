@@ -1,26 +1,22 @@
-VERSION = 	v0.1.6-snapshot
-PKG = 		zlocker
-MAIN = 		$(PKG).go
-RM =		rm -f
-DEP =		dep
+VERSION =   $(shell cat VERSION)
+PKG =       zlocker
+MAIN =      $(PKG).go
+RM =        rm -f
 
 .PHONY: all
 all: $(PKG)
 
-$(DEP):
-	@env -u GOOS -u GOARCH go get -u github.com/golang/dep/cmd/dep
+$(PKG): test
+	go build -mod=vendor -ldflags "-X main.version=$(VERSION)"
 
-.PHONY: deps
-deps: $(DEP)
-	@env PATH="$(GOPATH)/bin:$(PATH)" $(DEP) ensure
+.PHONY: test
+test:
+	go test
 
-$(PKG): deps
-	@env GCO_ENABLED=0 go build -ldflags "-s -X main.version=$(VERSION)"
+.PHONY: lint
+lint:
+	golangci-lint run
 
 .PHONY: clean
 clean:
 	@$(RM) $(PKG)
-
-.PHONY: version
-version:
-	@echo $(VERSION)

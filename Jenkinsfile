@@ -12,18 +12,10 @@ node {
         checkout scm
       }
       updateGithubCommitStatus('PENDING', "${env.WORKSPACE}/src")
-
-      stage('dep') {
-        godep()
-      }
-
       stage('Build') {
         parallel (
           "go lint": {
             golint()
-          },
-          "docker build": {
-            image = docker(repo)
           },
           "deb package": {
             build(repo)
@@ -33,14 +25,7 @@ node {
       }
 
       stage('Upload') {
-        parallel (
-          "docker image": {
-            image.push()
-          },
-          "deb package": {
-            aptlyUpload('staging', 'bionic', 'main', '../build-area/*deb')
-          }
-        )
+        aptlyUpload('staging', 'bionic', 'main', '../build-area/*deb')
       }
     }
   }
@@ -57,48 +42,17 @@ node {
   }
 }
 
-def godep() {
-  docker.withRegistry('https://registry.internal.exoscale.ch') {
-    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
-    image.pull()
-    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/exoscale/zlocker") {
-      sh 'test `gofmt -s -d -e . | tee -a /dev/fd/2 | wc -l` -eq 0'
-      sh 'cd /go/src/github.com/exoscale/zlocker && dep ensure -v -vendor-only'
-    }
-  }
-}
-
 def golint() {
   docker.withRegistry('https://registry.internal.exoscale.ch') {
-    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
+    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.11')
     image.pull()
-    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/exoscale/zlocker") {
-      sh 'golint -set_exit_status -min_confidence 0.6 $(go list github.com/exoscale/zlocker/... | grep -v /vendor/)'
-      sh 'go vet $(go list github.com/exoscale/zlocker/... | grep -v /vendor/)'
-    }
+    image.inside("-u root --net=host") { sh 'make lint' }
   }
 }
 
 def build(repo) {
   docker.withRegistry('https://registry.internal.exoscale.ch') {
-    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.10')
-    image.inside("-u root --net=host -v ${env.WORKSPACE}/src:/go/src/github.com/${repo}") {
-      sh "cd /go/src/github.com/${repo} && make"
-    }
-  }
-}
-
-def docker(repo) {
-  def branch = getGitBranch()
-  def tag = getGitTag() ?: (branch == "master" ? "latest" : branch)
-  def ref = sh("git rev-parse HEAD")
-  def date = sh('date -u +"%Y-%m-%dT%H:%m:%SZ"')
-  docker.withRegistry('https://registry.internal.exoscale.ch') {
-    return docker.build(
-        "registry.internal.exoscale.ch/${repo}:${tag}",
-        "--network host --no-cache -f Dockerfile "
-        + "--build-arg VCS_REF=$ref --build-arg BUILD_DATE=$date "
-        + "."
-    )
+    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.11')
+    image.inside("-u root --net=host") { sh 'make' }
   }
 }

@@ -24,6 +24,12 @@ var (
 	version string
 )
 
+func unlock(lock *zk.Lock) {
+	if lock.Unlock() != nil {
+		os.Exit(1)
+	}
+}
+
 func main() {
 	flag.Parse()
 
@@ -63,7 +69,7 @@ func main() {
 		logger.Fatal("cannot lock, exiting")
 		os.Exit(1)
 	}
-	defer lock.Unlock()
+	defer unlock(lock)
 	cmd := exec.Command("/bin/sh", "-c", cmdline)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
