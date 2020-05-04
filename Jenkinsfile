@@ -12,20 +12,25 @@ node {
         checkout scm
       }
       updateGithubCommitStatus('PENDING', "${env.WORKSPACE}/src")
+      stage('Test') {
+        golint()
+      }
       stage('Build') {
         parallel (
-          "go lint": {
-            golint()
-          },
-          "deb package": {
+          "Bionic": {
             build(repo)
-            gitPbuilder('bionic')
+            gitPbuilder('bionic', false, '../build-area-bionic')
+          },
+          "Focal": {
+            build(repo)
+            gitPbuilder('focal', false, '../build-area-focal')
           }
         )
       }
 
       stage('Upload') {
-        aptlyUpload('staging', 'bionic', 'main', '../build-area/*deb')
+        aptlyUpload('staging', 'bionic', 'main', '../build-area-bionic/*deb')
+        aptlyUpload('staging', 'focal', 'main', '../build-area-focal/*deb')
       }
     }
   }
