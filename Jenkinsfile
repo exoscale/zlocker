@@ -19,11 +19,11 @@ node {
         parallel (
           "Bionic": {
             build(repo)
-            gitPbuilder('bionic')
+            gitPbuilder('bionic', false, '../build-area-bionic')
           },
           "Focal": {
             build(repo)
-            gitPbuilder('focal')
+            gitPbuilder('focal', false, '../build-area-focal')
           }
         )
       }
@@ -31,10 +31,10 @@ node {
       stage('Upload') {
         parallel (
           "Bionic": {
-            aptlyUpload('staging', 'bionic', 'main', '../build-area/*deb')
+            aptlyUpload('staging', 'bionic', 'main', '../build-area-bionic/*deb')
           },
           "Focal": {
-            aptlyUpload('staging', 'focal', 'main', '../build-area/*deb')
+            aptlyUpload('staging', 'focal', 'main', '../build-area-focal/*deb')
           }
         )
       }
