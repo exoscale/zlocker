@@ -12,13 +12,15 @@ node {
         checkout scm
       }
       updateGithubCommitStatus('PENDING', "${env.WORKSPACE}/src")
+      stage('Test') {
+        golint()
+      }
       stage('Build') {
         parallel (
-          "go lint": {
-            golint()
-          },
-          "deb package": {
+          "Docker": {
             build(repo)
+          },
+          "Bionic": {
             gitPbuilder('bionic')
           }
         )
