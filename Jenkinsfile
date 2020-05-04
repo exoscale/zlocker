@@ -22,12 +22,22 @@ node {
           },
           "Bionic": {
             gitPbuilder('bionic')
+          },
+          "Focal": {
+            gitPbuilder('focal')
           }
         )
       }
 
       stage('Upload') {
-        aptlyUpload('staging', 'bionic', 'main', '../build-area/*deb')
+        parallel (
+          "Bionic": {
+            aptlyUpload('staging', 'bionic', 'main', '../build-area/*deb')
+          },
+          "Focal": {
+            aptlyUpload('staging', 'focal', 'main', '../build-area/*deb')
+          }
+        )
       }
     }
   }
