@@ -17,13 +17,12 @@ node {
       }
       stage('Build') {
         parallel (
-          "Docker": {
-            build(repo)
-          },
           "Bionic": {
+            build(repo)
             gitPbuilder('bionic')
           },
           "Focal": {
+            build(repo)
             gitPbuilder('focal')
           }
         )
