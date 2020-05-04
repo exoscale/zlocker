@@ -29,14 +29,8 @@ node {
       }
 
       stage('Upload') {
-        parallel (
-          "Bionic": {
-            aptlyUpload('staging', 'bionic', 'main', '../build-area-bionic/*deb')
-          },
-          "Focal": {
-            aptlyUpload('staging', 'focal', 'main', '../build-area-focal/*deb')
-          }
-        )
+        aptlyUpload('staging', 'bionic', 'main', '../build-area-bionic/*deb')
+        aptlyUpload('staging', 'focal', 'main', '../build-area-focal/*deb')
       }
     }
   }
