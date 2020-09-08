@@ -2,6 +2,9 @@ zlocker: zookeeper based isolated command execution
 ===================================================
 
 :warning: Usage of this tool is deprecated and being replaced by `consul lock`.
+Please check the
+[Consul Lock Documentation](https://www.consul.io/docs/commands/lock)
+for details on how to use it.
 
 [![Build Status](https://travis-ci.org/pyr/zlocker.svg?branch=master)](https://travis-ci.org/pyr/zlocker)
 
