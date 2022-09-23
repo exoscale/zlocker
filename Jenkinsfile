@@ -48,16 +48,16 @@ node {
 }
 
 def golint() {
-  docker.withRegistry('https://registry.internal.exoscale.ch') {
-    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.11')
+  docker.withRegistry("https://${EXOSCALE_DOCKER_REGISTRY}") {
+    def image = docker.image("${EXOSCALE_DOCKER_REGISTRY}/exoscale/golang:1.11")
     image.pull()
     image.inside("-u root --net=host") { sh 'make lint' }
   }
 }
 
 def build(repo) {
-  docker.withRegistry('https://registry.internal.exoscale.ch') {
-    def image = docker.image('registry.internal.exoscale.ch/exoscale/golang:1.11')
+  docker.withRegistry("https://${EXOSCALE_DOCKER_REGISTRY}") {
+    def image = docker.image("${EXOSCALE_DOCKER_REGISTRY}/exoscale/golang:1.11")
     image.inside("-u root --net=host") { sh 'make' }
   }
 }
